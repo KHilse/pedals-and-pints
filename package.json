@@ -1,0 +1,36 @@
+{
+  "name": "pedals-and-pints",
+  "version": "1.0.0",
+  "description": "Event Owner: Permitted to create an event with route and add participants. Event Owner is also a participant\r \tParticipant: Permitted to update their location and add drinks",
+  "main": "index.js",
+  "dependencies": {
+    "@mapbox/mapbox-sdk": "^0.6.0",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^8.1.0",
+    "ejs": "^2.6.2",
+    "express": "^4.17.1",
+    "express-ejs-layouts": "^2.5.0",
+    "express-session": "^1.16.2",
+    "flash": "^1.1.0",
+    "method-override": "^3.0.0",
+    "moment": "^2.24.0",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "pg": "^7.12.1",
+    "sequelize": "^5.16.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KHilse/pedals-and-pints.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KHilse/pedals-and-pints/issues"
+  },
+  "homepage": "https://github.com/KHilse/pedals-and-pints#readme"
+}

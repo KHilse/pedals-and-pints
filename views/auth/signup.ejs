@@ -1,0 +1,23 @@
+<h1>Sign up page</h1>
+<div class="credentials-form">
+    <form method="POST" action="/auth/signup">
+        <% if (msg) { %>
+            <p class="message-error"><%=msg%></p>
+        <% } %>
+        <label for="firstname-field">*First Name:</label>
+        <input id="firstname-field" type="text" name="firstname">
+        <label for="lastname-field">*Last Name:</label>
+        <input id="lastname-field" type="text" name="lastname">
+        <label for="username-field">*Username:</label>
+        <input id="username-field" type="text" name="username">
+        <label for="password-field">*Password:</label>
+        <input id="password-field" type="password" name="password">
+        <label for="password-verify-field">*Verify Password:</label>
+        <input id="password-verify-field" type="password" name="passwordverify">
+        <label for="email-field">Email:</label>
+        <input id="email-field" type="text" name="email">
+        <label for="profile-img-field">Profile Pic:</label>
+        <input id="profile-img-field" type="text" name="profile_img_url">
+        <input type="submit" value="Sign Up">
+    </form>
+</div>
