@@ -1,6 +1,7 @@
 // Require passport and any needed strategies
 const passport = require ("passport");
 const localStrategy = require("passport-local").Strategy;
+const bcrypt = require("bcryptjs");
 
 // We will need db access to store profiles
 const db = require("../models");
@@ -41,6 +42,7 @@ passport.use(new localStrategy({
 		console.log("got a user", foundParticipant.email);
 		// If I didn't find a user matching email (foundUser == null)
 		// OR if I did find the user but password is incorrect
+		// var hashedPassword = bcrypt.hashSync(typedInPassword, 10);
 		if (!foundParticipant || !foundParticipant.validPassword(typedInPassword)) {
 			// BAD USER, NO DATA
 			callback(null, null);

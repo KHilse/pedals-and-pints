@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const db = require("../models");
+const bcrypt = require("bcryptjs");
+const passport = require('../config/passportConfig');
 
 router.get("/signup", (req, res) => {
 	res.render("auth/signup", { msg: req.body.msg });
@@ -12,6 +14,8 @@ router.post('/signup', (req, res, next) => {
 	} else {
 	    //res.send('POST to signup:', req.body);
 	    // Passwords matched, create user if they don't already exist
+	    var hashedPassword = bcrypt.hashSync(req.body.password, 10);
+	    req.body.password = hashedPassword;
 	    db.participant.findOrCreate({
 	    	where: { email: req.body.email },
 	    	defaults: req.body
