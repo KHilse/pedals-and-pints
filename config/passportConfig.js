@@ -39,10 +39,10 @@ passport.use(new localStrategy({
 		where: { username: typedInUsername }
 	})
 	.then((foundParticipant) => {
-		console.log("got a user", foundParticipant.id, foundParticipant.username);
+		console.log("got a user", foundParticipant);
 		// If I didn't find a user matching email (foundUser == null)
 		// OR if I did find the user but password is incorrect
-		if (!foundParticipant || !(foundParticipant.password === typedInPassword)) {
+		if (!foundParticipant || !foundParticipant.validPassword(typedInPassword)) {
 			// BAD USER, NO DATA FOR YOU
 			callback(null, null);
 		} else {

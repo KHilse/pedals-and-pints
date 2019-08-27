@@ -14,15 +14,18 @@ router.post('/signup', (req, res, next) => {
 	} else {
 	    //res.send('POST to signup:', req.body);
 	    // Passwords matched, create user if they don't already exist
-	    var hashedPassword = bcrypt.hashSync(req.body.password, 10);
-	    req.body.password = hashedPassword;
+//	    var hashedPassword = bcrypt.hashSync(req.body.password, 10);
+	    delete req.body.passwordverify;
+	    console.log("FindOrCreate...");
 	    db.participant.findOrCreate({
-	    	where: { email: req.body.email },
+	    	where: { username: req.body.username },
 	    	defaults: req.body
 	    })
 	    .spread((participant, wasCreated) => {
+		    console.log("Spread...");
 	    	if (wasCreated) {
 	    		// Legit new user
+			    console.log("wasCreated...");
 	    		passport.authenticate("local", {
 					successRedirect: "/",
 					successFlash: "Login success",
@@ -32,6 +35,7 @@ router.post('/signup', (req, res, next) => {
 	    	} else {
 	    		// Existing user was found, don't let them create a new account
 	    		// Make them log in instead
+			    console.log("wasFound...");
 	    		req.flash('error', 'Account already exists, please log in!');
 	    		res.redirect('/auth/login');
 	    	}
@@ -65,17 +69,18 @@ router.post('/login', (req, res, next) => {
 	} else {
 	    //res.send('POST to signup:', req.body);
 	    // Passwords matched, create user if they don't already exist
-	    var hashedPassword = bcrypt.hashSync(req.body.password, 10);
-	    req.body.password = hashedPassword;
+
 	    console.log("USERNAME:", req.body.username);
 	    console.log("PASSWORD:", req.body.password);
+	    // var hashedPassword = bcrypt.hashSync(req.body.password, 10);
+	    // req.body.password = hashedPassword;
+	    // console.log("HASHED:  ", req.body.password);
 	    db.participant.findOne({
-	    	where: { username: req.body.username },
-	    	defaults: { password: req.body.password }
+	    	where: { username: req.body.username }
+	    	// defaults: { password: req.body.password }
 	    })
 	    .then((participant) => {
 	    	console.log("DB password:   ", participant.password);
-	    	console.log("Typed password:", hashedPassword);
 	    	if (participant) {
 	    		passport.authenticate("local", {
 					successRedirect: "/",
@@ -92,19 +97,15 @@ router.post('/login', (req, res, next) => {
 	    })
 	    .catch((err) => {
 	    	console.log('Error in post-auth login:', err);
-	    	req.flash('error', 'Hey something went wrong with your login');
-			res.redirect('/auth/login');
+	    	req.flash("error", "Hey we didn't find your profile, Sign up!");
+			res.redirect('/auth/signup');
 	    })
 	}
 })
 
 router.get("/logout", (req, res) => {
-	res.send("LOGOUT stub");
-})
-
-router.post("/logout", (req, res) => {
-	console.log("LOGOUT POST stub");
-	res.send("LOGOUT POST stub");
+	res.locals.currentUser = null;
+	res.render("auth/logout");
 })
 
 module.exports = router;
