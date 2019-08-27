@@ -3,5 +3,6 @@ input {
 }
 
 .home-title {
+	display: inline;
 	font-size: 36px;
 }
