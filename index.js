@@ -51,7 +51,13 @@ app.use('/auth', require('./controllers/auth'));
 
 // HOME ROUTES
 app.get("/", (req, res) => {
-	res.render("index");
+	db.event.findAll( {
+		order: [["createdAt", "DESC"]],
+		limit: 3
+	})
+	.then(events => {
+		res.render("index", { events });
+	})
 })
 
 

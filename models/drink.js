@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   drink.associate = function(models) {
     // associations can be defined here
-    models.drink.hasOne(models.eventsParticipants);
+    models.drink.belongsTo(models.eventsParticipants);
   };
   return drink;
 };

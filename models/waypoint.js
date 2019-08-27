@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   waypoint.associate = function(models) {
     // associations can be defined here
-    models.waypoint.hasOne(models.event);
+    models.waypoint.belongsTo(models.event);
   };
   return waypoint;
 };
