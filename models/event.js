@@ -2,7 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   const event = sequelize.define('event', {
     name: DataTypes.STRING,
-    date: DataTypes.DATE,
+    date: DataTypes.DATEONLY,
     description: DataTypes.TEXT,
     logo: DataTypes.BLOB,
     owner_id: DataTypes.INTEGER

@@ -4,7 +4,9 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     untappd_id: DataTypes.INTEGER,
     stop_number: DataTypes.INTEGER,
-    event_id: DataTypes.INTEGER
+    eventId: DataTypes.INTEGER,
+    long: DataTypes.FLOAT,
+    lat: DataTypes.FLOAT
   }, {});
   waypoint.associate = function(models) {
     // associations can be defined here

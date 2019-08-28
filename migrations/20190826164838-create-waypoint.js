@@ -17,8 +17,14 @@ module.exports = {
       stop_number: {
         type: Sequelize.INTEGER
       },
-      event_id: {
+      eventId: {
         type: Sequelize.INTEGER
+      },
+      long: {
+        type: Sequelize.FLOAT
+      },
+      lat: {
+        type: Sequelize.FLOAT
       },
       createdAt: {
         allowNull: false,

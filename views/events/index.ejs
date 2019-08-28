@@ -6,13 +6,8 @@
 		<% event.participants.forEach(participant => { %>
 			<%=participant.username%> (<%=participant.firstname%>)
 		<% }) %></p>
-	<form method="GET" action="events/addparticipants">
-		<input type="hidden" name="event_id" value="<%=event.id%>">
-		<input type="submit" value="Add Participants">
-	</form>
-	<form method="GET" action="events/addwaypoints">
-		<input type="hidden" name="event_id" value="<%=event.id%>">
-		<input type="submit" value="Add Waypoints">
+	<form method="GET" action="events/show/<%=event.id%>">
+		<input type="submit" value="Edit">
 	</form>
 	<hr />
 <% }) %>

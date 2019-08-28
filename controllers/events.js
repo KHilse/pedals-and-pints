@@ -63,6 +63,38 @@ router.get("/show/:id", (req, res) => {
 	})
 })
 
+router.get("/show/:id", (req, res) => {
+	db.event.findByPk(id)
+	.then(event => {
+		res.render("show", {
+			event
+		})
+	})
+	.catch(err => {
+		console.log("EVENTS/ID/EDIT failed to get event", err);
+	})
+})
+
+
+router.post("/edit/:id", (req, res) => {
+	db.event.findByPk(req.params.id)
+	.then(event => {
+		var dateBits = req.body.date.split("-");
+		var fixedDate = dateBits[1] + "/" + dateBits[2] + "/" + dateBits[0];
+		console.log("DATEBITS", dateBits, typeof(dateBits));
+		console.log("FIXEDDATE", fixedDate);
+		event.update({
+			name: req.body.name,
+			description: req.body.description,
+			date: fixedDate
+		})
+		.then(() => {
+			res.redirect("/events/show/"+req.params.id);
+		})
+	})
+})
+
+
 router.get("/addparticipants", (req, res) => {
 	db.participant.findAll()
 	.then(availableParticipants => {
@@ -101,9 +133,41 @@ router.post("/addparticipants", (req, res) => {
 })
 
 router.get("/addwaypoints", (req, res) => {
-	res.render("events/addwaypoints", {
-		event_id: req.query.event_id
-	});
+	console.log("ADDWAYPOINTS GET");
+	db.waypoint.findAll({
+		where: { eventId: req.query.event_id }
+	})
+	.then(waypoints => {
+		console.log("ADDWAYPOINTS THEN");
+		var markers = waypoints.map(wp => {
+			var markerObj = {
+				"type": "Feature",
+				"geometry": {
+					"type": "Point",
+					"coordinates": [wp.long, wp.lat]
+					},
+				"properties": {
+					"title": wp.name,
+					"icon": "beer"
+					}
+			}
+			return JSON.stringify(markerObj);
+		});
+		res.render("events/addwaypoints", {
+			event_id: req.query.event_id,
+			mapboxAccessToken: process.env.mapboxAccessToken,
+			markers,
+			lat: null,
+			long: null,
+			name: null,
+			address: null,
+			city: null,
+			state: null
+		})
+	})
+	.catch(err => {
+		console.log("ERROR getting all waypoints that match event", req.query.event_id, err);
+	})
 })
 
 router.post("/addwaypoints", (req, res) => {
@@ -117,7 +181,7 @@ router.post("/addwaypoints", (req, res) => {
 		// TODO: send all of the matches instead of just the first one
 		// and update searchresults.ejs to match
 		console.log("ADDING WAYPOINT, MAPBOX response");
-//		res.send(response.body.features[0]);
+
 		var match = response.body.features[0];
 		var lat = match.center[1];
 		var long = match.center[0];
@@ -126,7 +190,10 @@ router.post("/addwaypoints", (req, res) => {
 		var address = match.properties.address;
 		var city = place[place.length-2];
 		var state = place[place.length-1];
+
 		res.render("events/addwaypoints", {
+			markers: null,
+			mapboxAccessToken: process.env.mapboxAccessToken,
 			event_id: req.body.event_id,
 			lat,
 			long,
@@ -134,13 +201,23 @@ router.post("/addwaypoints", (req, res) => {
 			city,
 			state,
 			name
-		});
+		})
 	})
 })
 
-router.post("/waypointadd", (req, res) => {
-	res.send("STUB -- ADD WAYPOINT");
-})
+router.post("/waypointsadd", (req, res) => {
+	db.waypoint.create({
+		name: name,
+		untapped_id: 3456, // TODO: get actual id
+		stop_number: 1,
+		eventId: req.body.event_id,
+		long: long,
+		lat: lat
+	})
+	.then(() => {
+		res.redirect("/addwaypoints");
+	})
 
+})
 
 module.exports = router;
