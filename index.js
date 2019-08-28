@@ -5,6 +5,7 @@ const methodOverride = require("method-override");
 const express = require("express");
 const app = express();
 const layouts = require("express-ejs-layouts");
+const fetch = require("node-fetch");
 const db = require("./models");
 const flash = require('connect-flash');
 const passport = require('./config/passportConfig');
@@ -60,6 +61,31 @@ app.get("/", (req, res) => {
 	})
 })
 
+
+app.get("/beertest", (req, res) => {
+	var breweryFetchString = "https://api.untappd.com/v4/search/brewery?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret;
+	breweryFetchString += "&q=reuben's+brews";
+	breweryFetchString = encodeURI(breweryFetchString);
+	fetch(breweryFetchString)
+	.then(response => {
+		return response.json()
+	})
+	.then(breweryJson => {
+		var breweryId = breweryJson.response.brewery.items[0].brewery.brewery_id;
+		var beersFetchString = "https://api.untappd.com/v4/brewery/info/" + breweryId + "?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret;
+		beersFetchString = encodeURI(beersFetchString);
+		fetch(beersFetchString)
+		.then(response => {
+			return response.json()
+		})
+		.then(beersJson => {
+			var beersList = beersJson.response.brewery.beer_list.items.map(item => {
+				return item.beer.beer_name;
+			})
+			res.send(beersList);
+		})
+	})
+})
 
 // LISTENER
 

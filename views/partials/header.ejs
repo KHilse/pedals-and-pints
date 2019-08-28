@@ -1,5 +1,6 @@
 <nav>
 	<p class="home-title"><a href="/">Pedals and Pints</a></p>
+	<span><a href="/events">Your Events</a></span>
 	<% if (currentUser) { %>
 		<span>Welcome back, <%=currentUser.firstname%>! <a href="/auth/logout">Logout</a></span>
 	<% } else { %>

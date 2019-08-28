@@ -2,6 +2,10 @@
 
 <% events.forEach(event => { %>
 	<p><%=event.name%> on <%=event.date%></p>
+	<p><%=event.participants.length%> participants attending, 
+		<% event.participants.forEach(participant => { %>
+			<%=participant.username%> (<%=participant.firstname%>)
+		<% }) %></p>
 	<form method="GET" action="events/addparticipants">
 		<input type="hidden" name="event_id" value="<%=event.id%>">
 		<input type="submit" value="Add Participants">

@@ -1,0 +1,19 @@
+<h1>Add waypoints to the Event</h1>
+<p>Event id: <%=event_id%></p>
+<form method="POST" action="waypointadd">
+	<input type="hidden" name="lat" value="<%=lat%>">
+	<input type="hidden" name="long" value="<%=long%>">
+	<input type="text" name="name" value="<%=name%>" disabled>
+	<input type="text" name="address" value="<%=address%>" disabled>
+	<input type="text" name="city" value="<%=city%>" disabled>
+	<input type="text" name="state" value="<%=state%>" disabled>
+	<input type="submit" value="Add">
+</form>
+<form method="POST" action="addwaypoints">
+	<label for="waypointName">Waypoint name:</label>
+	<input name="waypointName" type="text">
+	<label for="waypointLocation">Waypoint city,state (optional)</label>
+	<input name="waypointLocation" type="text">
+	<input type="hidden" name="event_id" value="<%=event_id%>">
+	<input type="submit" value="Search">
+</form>
