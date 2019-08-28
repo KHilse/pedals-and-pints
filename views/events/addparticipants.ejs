@@ -1,0 +1,11 @@
+<h1>Add participants to the Event</h1>
+<p>Event id: <%=event_id%></p>
+<form method="POST" action="addparticipants">
+	<select name="new_participant">
+	<% availableParticipants.forEach(p => { %>
+		<option value="<%=p.id%>"><%=p.username%> (<%=p.firstname%> <%=p.lastname%>)</option>
+	<% }) %>
+	</select>
+	<input type="hidden" name="event_id" value="<%=event_id%>">
+	<input type="submit" value="Add">
+</form>

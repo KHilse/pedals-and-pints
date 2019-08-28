@@ -52,11 +52,41 @@ router.get("/show/:id", (req, res) => {
 })
 
 router.get("/addparticipants", (req, res) => {
-	res.send("STUB: addparticipants");
+	db.participant.findAll(/*{
+		include: [db.event]
+	}*/)
+	.then(availableParticipants => {
+		console.log("AVAILABLE PARTICIPANTS:", availableParticipants.length);
+		res.render("events/addparticipants", {
+			event_id: req.query.event_id,
+			availableParticipants
+		})
+	})
 })
 
 router.post("/addparticipants", (req, res) => {
 	console.log("STUB: ADDING PARTICPANTS FROM FORM DATA");
+	console.log("req.body.event_id", req.body.event_id);
+	console.log("Typeof", typeof req.body.event_id);
+	db.event.findOne({
+		where: { id: req.body.event_id }
+		})
+	.then(ev => {
+		db.participant.findOne({
+			where: { id: req.body.new_participant }
+		})
+		.then(participant => {
+			if (participant) {
+				ev.addParticipant(participant)
+			}
+		})
+		.catch(err => {
+			console.log("Couldn't get participant to add to event");
+		})
+	})
+	.catch(err => {
+		console.log("ERROR adding participant from form data", err);
+	})
 	res.redirect("addparticipants");
 })
 
