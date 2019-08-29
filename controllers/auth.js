@@ -104,8 +104,9 @@ router.post('/login', (req, res, next) => {
 })
 
 router.get("/logout", (req, res) => {
-	res.locals.currentUser = null;
-	res.render("auth/logout");
+    req.logout(); // Deletes the user from req.user
+ 	req.flash("success", "Logged out, goodbye");
+	res.redirect("/");
 })
 
 module.exports = router;

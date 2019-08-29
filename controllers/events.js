@@ -53,28 +53,44 @@ router.post("/new", (req, res) => {
 })
 
 router.get("/show/:id", (req, res) => {
-	db.event.findByPk(req.params.id)
-	.then(event => {
-		res.render("events/show", { event });
+	db.event.findOne({
+		where: {
+			id: req.params.id
+		},
+		include: [{model: db.participant}]
 	})
-	.catch(err => {
-		console.log("ERROR finding Event by Index:", err);
-		res.redirect("index");
-	})
-})
-
-router.get("/show/:id", (req, res) => {
-	db.event.findByPk(id)
 	.then(event => {
-		res.render("show", {
-			event
+		db.participant.findAll()
+		.then(participants => {
+			res.render("events/show", {
+				event,
+				participants
+			});
 		})
 	})
 	.catch(err => {
-		console.log("EVENTS/ID/EDIT failed to get event", err);
+		console.log("ERROR finding Event by Index:", err);
+		res.redirect("/");
 	})
 })
 
+router.post("/show/:id", (req, res) => {
+	db.event.findByPk(req.params.id)
+	.then(event => {
+		console.log("PARTICIPANT ID", req.body.inviteeId);
+		db.participant.findByPk(req.body.inviteeId)
+		.then(p => {
+			event.addParticipant(p);
+			res.redirect("/events/show/" + req.params.id);
+		})
+		.catch(err => {
+			console.log("ERROR in POST events/show/:id adding participant", err);
+		})
+	})
+	.catch(err => {
+		console.log("ERROR in POST events/show/:id finding event by Pk", err);
+	})
+})
 
 router.post("/edit/:id", (req, res) => {
 	db.event.findByPk(req.params.id)

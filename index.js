@@ -49,15 +49,24 @@ app.use((req, res, next) => {
 // Controllers
 app.use('/auth', require('./controllers/auth'));
 app.use('/events', require("./controllers/events"));
+app.use("/ride", require("./controllers/ride"));
 
 // HOME ROUTES
 app.get("/", (req, res) => {
 	db.event.findAll( {
 		order: [["createdAt", "DESC"]],
+		include: [{ model: db.participant }],
 		limit: 3
 	})
 	.then(events => {
-		res.render("index", { events });
+		var currentUserId = 0;
+		if (res.locals.currentUser) {
+			currentUserId = res.locals.currentUser.id;
+		}
+		res.render("index", {
+			currentUserId,
+		 	events
+		})
 	})
 })
 

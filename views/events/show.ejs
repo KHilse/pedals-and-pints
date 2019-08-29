@@ -1,13 +1,43 @@
 <h1><%=event.name%></h1>
-<% var eventDateString = event.date.getFullYear() + "-" + ("0" + (event.date.getMonth()+1)).toString().slice(-2) + "-" + ("0" + (event.date.getDay())).toString().slice(-2)%>
+
 <form method="POST" action="/events/edit/<%=event.id%>">
 	<input type="hidden" name="id" value="<%=event.id%>">
 	<label for="name">Event Name:</label>
 	<input name="name" type="text" value="<%=event.name%>">
 	<label for="date">Event Date:</label>
-	<input name="date" type="date" value="<%=eventDateString%>">
+	<input name="date" type="date" value="<%=event.date%>">
 	<textarea name="description"><%=event.description%></textarea>
 	<input type="submit" value="Update">
 </form>
 
 <p>Last updated <%=event.updatedAt%></p>
+
+<p>Invitees</p>
+<% event.participants.forEach(participant => { %>
+	<p><%=participant.username%></p>
+<% }) %>
+
+<p>Invite More Participants!</p>
+<form method="POST" action="/events/show/<%=event.id%>">
+<input type="hidden" name="id" value="<%=event.id%>">
+<select name="inviteeId">
+<% 	participants.forEach(p => {
+		if (isInInvitees(p.username, event.participants) == false) { %>
+			<option value="<%=p.id%>"><%=p.username%></option>
+<%		}
+ 	}) %>
+</select>
+<input type="submit" value="Add!">
+</form>
+
+<%	function isInInvitees(name, invitees) {
+		// take an invitee out of the possibles list so that
+		// the user sees only possibles that haven't been invited
+		for(invitee of invitees) {
+			if(invitee.username == name) {
+				return true;
+			}
+		}
+		return false;
+	}
+%>

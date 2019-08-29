@@ -11,5 +11,14 @@
 			<p class="event-title"><%=event.name%></p>
 			<p class="event-info"><%=event.date%> Created by: <%=event.owner_id%></p>
 			<p class="event-info"><%=event.description%></p> 
-		<% })
+			<p class="event-info"><%=event.participants.length%> participants attending!</p>
+			<% event.participants.forEach(p => {
+				if (p.id == currentUserId && (event.date == moment().format("YYYY-MM-DD"))) { %>
+					<form method="POST" action="/ride">
+						<input type="hidden" name="eventId" value="<%=event.id%>">
+						<input type="submit" value="Join Ride!">
+					</form>
+			<%	}
+			})
+		})
 	} %>
