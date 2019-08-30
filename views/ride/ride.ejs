@@ -9,7 +9,7 @@
 <% } %>
 <% event.waypoints.forEach(waypoint => { %>
 	<p><%=waypoint.stop_number%> <%=waypoint.name%></p>
-	<p><%=waypoint.untappd_id%> <%=waypoint.long%> <%=waypoint.lat%></p>
+	<p><%=waypoint.address%> <%=waypoint.city%>, <%=waypoint.state%></p>
 	<form method="POST" action="/waypointcheckin">
 		<input type="hidden" value="waypoint.id">
 	</form>

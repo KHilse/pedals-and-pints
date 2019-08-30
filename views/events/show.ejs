@@ -12,7 +12,7 @@
 
 <p>Last updated <%=event.updatedAt%></p>
 
-<p>Waypoints</p>
+<p>Waypoints (<%=event.waypoints.length%>)</p>
 <% event.waypoints.forEach(waypoint => { %>
 	<p><%=waypoint.name%></p>
 <% }) %>

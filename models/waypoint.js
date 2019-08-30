@@ -2,6 +2,9 @@
 module.exports = (sequelize, DataTypes) => {
   const waypoint = sequelize.define('waypoint', {
     name: DataTypes.STRING,
+    address: DataTypes.STRING,
+    city: DataTypes.STRING,
+    state: DataTypes.STRING,
     untappd_id: DataTypes.INTEGER,
     stop_number: DataTypes.INTEGER,
     eventId: DataTypes.INTEGER,

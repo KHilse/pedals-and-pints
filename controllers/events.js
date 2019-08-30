@@ -152,11 +152,48 @@ router.post("/addparticipants", (req, res) => {
 
 router.get("/addwaypoints/:eventId", (req, res) => {
 	console.log("ADDWAYPOINTS GET");
+	var eventId = req.params.eventId;
+	console.log("EVENTID:", eventId);
 	db.waypoint.findAll({
-		where: { eventId: req.params.eventId }
+		where: { eventId: eventId }
 	})
 	.then(waypoints => {
-		console.log("ADDWAYPOINTS THEN");
+		console.log("ADDWAYPOINTS THEN", waypoints.length);
+		var markers = [];
+		markers = waypoints.map(wp => {
+			var markerObj = {
+				"type": "Feature",
+				"geometry": {
+					"type": "Point",
+					"coordinates": [wp.long, wp.lat]
+					},
+				"properties": {
+					"title": wp.name,
+					"icon": "beer"
+					}
+			}
+			return JSON.stringify(markerObj);
+		});
+		console.log("MARKERS", markers);
+		console.log("EVENTID 2:", eventId);
+		res.render("events/addwaypoints", {
+			event_id: eventId,
+			mapboxAccessToken: process.env.mapboxAccessToken,
+			markers
+		})
+	})
+	.catch(err => {
+		console.log("ERROR getting all waypoints that match event", req.query.event_id, err);
+	})
+})
+
+router.post("/addwaypoints", (req, res) => {
+	console.log("ADDWAYPOINTS POST route, event_id", req.body.event_id);
+	// Get existing waypoints to show on map
+	db.waypoint.findAll({
+		where: { eventId: req.body.event_id }
+	})
+	.then(waypoints => {
 		var markers = waypoints.map(wp => {
 			var markerObj = {
 				"type": "Feature",
@@ -171,110 +208,90 @@ router.get("/addwaypoints/:eventId", (req, res) => {
 			}
 			return JSON.stringify(markerObj);
 		});
-		res.render("events/addwaypoints", {
-			event_id: req.params.eventId,
-			mapboxAccessToken: process.env.mapboxAccessToken,
-			markers,
-			lat: null,
-			long: null,
-			name: null,
-			address: null,
-			city: null,
-			state: null
-		})
-	})
-	.catch(err => {
-		console.log("ERROR getting all waypoints that match event", req.query.event_id, err);
-	})
-})
 
-router.post("/addwaypoints", (req, res) => {
+		// Use Untappd to get brewery info for searched brewery name
+		var breweryFetchString = "https://api.untappd.com/v4/search/brewery?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret + "&q=";
+			breweryFetchString += req.body.waypointName.replace(" ", "+");
+			breweryFetchString = encodeURI(breweryFetchString);
+		console.log("BREWERYFETCHSTRING:", breweryFetchString);
 
-	// Use Untappd to get brewery info
-	var breweryFetchString = "https://api.untappd.com/v4/search/brewery?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret + "&q=";
-		breweryFetchString += req.body.waypointName.replace(" ", "+");
-		breweryFetchString = encodeURI(breweryFetchString);
-	console.log("BREWERYFETCHSTRING:", breweryFetchString);
-
-	var breweryInfo = {};
-	fetch(breweryFetchString)
-	.then(response => {
-		return response.json()
-	})
-	.then(breweryJson => {
-		var breweryId = breweryJson.response.brewery.items[0].brewery.brewery_id;
-		var breweryName =  breweryJson.response.brewery.items[0].brewery.brewery_name;
-		var beersFetchString = "https://api.untappd.com/v4/brewery/info/" + breweryId + "?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret;
-		beersFetchString = encodeURI(beersFetchString);
-		fetch(beersFetchString)
+		var breweryInfo = {};
+		fetch(breweryFetchString)
 		.then(response => {
 			return response.json()
 		})
-		.then(beersJson => {
-			var beersList = beersJson.response.brewery.beer_list.items.map(item => {
-				return item.beer.beer_name;
+		.then(breweryJson => {
+			var untappdId = breweryJson.response.brewery.items[0].brewery.brewery_id
+			var beersFetchString = "https://api.untappd.com/v4/brewery/info/" + untappdId + "?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret;
+			beersFetchString = encodeURI(beersFetchString);
+			console.log("API call to fetch brewery info from ID:", beersFetchString);
+			fetch(beersFetchString)
+			.then(response => {
+				return response.json()
 			})
+			.then(beersJson => {
+				var beersList = beersJson.response.brewery.beer_list.items.map(item => {
+					return item.beer.beer_name;
+				})
 
-			// Return brewery data as an object
-			breweryInfo = {
-				breweryId: breweryId,
-				breweryName: breweryName,
-				beersList: beersList
-			};
-			console.log("BREWERYINFO ***", breweryInfo);
-			// Use Mapbox to get the location and store it in the waypoint
-			var query = `${req.body.waypointName}, ${req.body.waypointLocation}`;
-			geocodingClient.forwardGeocode({
-				query,
-				types: ["poi"]
-			})
-			.send()
-			.then((response) => {
-				// TODO: send all of the matches instead of just the first one
-				// and update searchresults.ejs to match
-				console.log("ADDING WAYPOINT, MAPBOX response");
+				// Compile aggregated brewery data in an object
+				breweryInfo = {
+					untappdId: untappdId,
+					name: beersJson.response.brewery.brewery_name,
+					address: beersJson.response.brewery.location.brewery_address,
+					city: beersJson.response.brewery.location.brewery_city,
+					state: beersJson.response.brewery.location.brewery_state,
+					beersList: beersList
+				};
+				console.log("BREWERYINFO ***", breweryInfo);
+				// Use Mapbox to get the location and store it in the waypoint
+				var query = `${breweryInfo.name}, ${breweryInfo.city}`;
+				geocodingClient.forwardGeocode({
+					query,
+					types: ["poi"]
+				})
+				.send()
+				.then((response) => {
+					// TODO: send all of the matches instead of just the first one
+					// and update searchresults.ejs to match
+					console.log("MAPBOX response");
 
-				var match = response.body.features[0];
-				var lat = match.center[1];
-				var long = match.center[0];
-				var place = match.place_name.split(",");
-				var name = breweryInfo.breweryName;
-				var address = match.properties.address;
-				var city = place[place.length-2];
-				var state = place[place.length-1];
-				var untappd_id = breweryInfo.breweryId;
-				// var beersList = breweryInfo.beersList;
+					var match = response.body.features[0];
+					breweryInfo.lat = match.center[1];
+					breweryInfo.long = match.center[0];
 
-				res.render("events/addwaypoints", {
-					event_id: req.params.event_id,
-					markers: null,
-					mapboxAccessToken: process.env.mapboxAccessToken,
-					event_id: req.body.event_id,
-					untappd_id,
-					lat,
-					long,
-					address,
-					city,
-					state,
-					name
+
+
+					// This info goes into the form that POSTs to /waypointadd
+					res.render("events/addwaypoints", {
+						event_id: req.params.event_id,
+						breweryInfo,
+						markers,
+						mapboxAccessToken: process.env.mapboxAccessToken,
+						event_id: req.body.event_id,
+					})
+				})
+				.catch(err => {
+					console.log("Mapbox Geocode API call failed in addwaypoints POST route", err);
 				})
 			})
 			.catch(err => {
-				console.log("Mapbox Geocode API call failed in addwaypoints POST route", err);
+				console.log("Untappd API call (Info) failed in addwaypoints POST route", err);
 			})
 		})
 		.catch(err => {
-			console.log("Untappd API call failed in getBreweryInfo");
+			console.log("Untappd API call (ID) failed in addwaypoints POST route", err);
 		})
-	})
-	.catch(err => {
-		console.log("Mapbox geocode API call failed in getBreweryInfo");
 	})
 })
 
 router.post("/waypointadd", (req, res) => {
+	console.log("WAYPOINTADD:", req.body);
 	db.waypoint.create({
-		name: req.body.name,
+		name: req.body.breweryName,
+		address: req.body.breweryAddress,
+		city: req.body.breweryCity,
+		state: req.body.breweryState,
 		untappd_id: Number(req.body.untappd_id), // TODO: get actual id
 		stop_number: 1,
 		eventId: Number(req.body.event_id),
@@ -286,48 +303,7 @@ router.post("/waypointadd", (req, res) => {
 	})
 })
 
-async function getBreweryInfo(breweryName) {
-	var asyncResponse;
-	var breweryFetchString = "https://api.untappd.com/v4/search/brewery?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret;
-	breweryFetchString += "&q=reuben's+brews";
-	breweryFetchString = encodeURI(breweryFetchString);
-	var breweryInfo = {};
-	fetch(breweryFetchString)
-	.then(response => {
-		return response.json()
-	})
-	.then(async breweryJson => {
-		var breweryId = breweryJson.response.brewery.items[0].brewery.brewery_id;
-		var breweryName =  breweryJson.response.brewery.items[0].brewery.brewery_name;
-		var beersFetchString = "https://api.untappd.com/v4/brewery/info/" + breweryId + "?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret;
-		beersFetchString = encodeURI(beersFetchString);
-		fetch(beersFetchString)
-		.then(response => {
-			return response.json()
-		})
-		.then(beersJson => {
-			var beersList = beersJson.response.brewery.beer_list.items.map(item => {
-				return item.beer.beer_name;
-			})
 
-			// Return brewery data as an object
-			breweryInfo = {
-				breweryId: breweryId,
-				breweryName: breweryName,
-				beersList: beersList
-			};
-			console.log("BREWERYINFO ***", breweryInfo);
-			return breweryInfo;
-		})
-		.catch(err => {
-			console.log("Untappd API call failed in getBreweryInfo");
-		})
-	})
-	.catch(err => {
-		console.log("Mapbox geocode API call failed in getBreweryInfo");
-	})
-//	return breweryInfo;
-}
 
 
 
