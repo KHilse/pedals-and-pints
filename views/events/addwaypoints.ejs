@@ -4,6 +4,7 @@
 	<form method="POST" action="waypointadd">
 		<input type="hidden" name="lat" value="<%=lat%>">
 		<input type="hidden" name="long" value="<%=long%>">
+		<input type="hidden" name="event_id" value="<%=event_id%>">
 		<input type="hidden" name="untappd_id" value="<%=untappd_id%>">
 		<input type="text" name="name" value="<%=name%>" disabled>
 		<input type="text" name="address" value="<%=address%>" disabled>
@@ -12,7 +13,7 @@
 		<input type="submit" value="Add">
 	</form>
 <% } %>
-<form method="POST" action="addwaypoints">
+<form method="POST" action="/events/addwaypoints">
 	<label for="waypointName">Waypoint name:</label>
 	<input name="waypointName" type="text">
 	<label for="waypointLocation">Waypoint city,state (optional)</label>

@@ -12,6 +12,14 @@
 
 <p>Last updated <%=event.updatedAt%></p>
 
+<p>Waypoints</p>
+<% event.waypoints.forEach(waypoint => { %>
+	<p><%=waypoint.name%></p>
+<% }) %>
+<form method="GET" action="/events/addwaypoints/<%=event.id%>">
+	<input type="submit" value="Add!">
+</form>
+
 <p>Invitees</p>
 <% event.participants.forEach(participant => { %>
 	<p><%=participant.username%></p>

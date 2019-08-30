@@ -11,14 +11,17 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
+      brewery: {
+        type: Sequelize.STRING
+      },
       abv: {
         type: Sequelize.FLOAT
       },
-      eventsWaypoints_id: {
+      participantId: {
         type: Sequelize.INTEGER
       },
       size: {
-        type: Sequelize.STRING
+        type: Sequelize.FLOAT
       },
       createdAt: {
         allowNull: false,

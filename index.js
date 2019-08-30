@@ -75,12 +75,15 @@ app.get("/beertest", (req, res) => {
 	var breweryFetchString = "https://api.untappd.com/v4/search/brewery?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret;
 	breweryFetchString += "&q=reuben's+brews";
 	breweryFetchString = encodeURI(breweryFetchString);
+	console.log("BREWERY FETCH STRING", breweryFetchString);
 	fetch(breweryFetchString)
 	.then(response => {
 		return response.json()
 	})
 	.then(breweryJson => {
+//		console.log(breweryJson);
 		var breweryId = breweryJson.response.brewery.items[0].brewery.brewery_id;
+		var breweryName =  breweryJson.response.brewery.items[0].brewery.brewery_name;
 		var beersFetchString = "https://api.untappd.com/v4/brewery/info/" + breweryId + "?client_id=" + process.env.untappdClientId + "&client_secret=" + process.env.untappdClientSecret;
 		beersFetchString = encodeURI(beersFetchString);
 		fetch(beersFetchString)

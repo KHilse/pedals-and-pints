@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
   participant.associate = function(models) {
     // associations can be defined here
     models.participant.belongsToMany(models.event, { through: models.eventsParticipants });
+    models.participant.hasMany(models.drink);
   };
 
   // Custom function validPassword will check on instance of the model (specific user)

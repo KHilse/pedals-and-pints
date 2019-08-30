@@ -4,7 +4,7 @@
 <p><%=event.description%></p>
 
 <h2>Route</h2>
-<% if (res.locals.waypoints.length == 0) { %>
+<% if (!rideState.rideStarted) { %>
 	<p>Check into a waypoint and add the beers you drank!</p>
 <% } %>
 <% event.waypoints.forEach(waypoint => { %>

@@ -7,7 +7,7 @@ var secret = process.env.untappdClientSecret;
 //https://api.untappd.com/v4/method_name?client_id=CLIENTID&client_secret=CLIENTSECRET
 var fetchString = "https://api.untappd.com/v4/search/brewery?client_id=" + client_id + "&client_secret=" + secret;
 	fetchString += "&q=reuben's+brews";
-
+console.log("FETCHSTRING:", fetchString);
 fetch(fetchString)
 .then((response) => {
 	console.log(response.json());
